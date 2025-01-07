@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import "../../styles/users.css";
+// import "../../styles/users.css";
+import { Table, Button, Modal, Input } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { PlusOutlined } from "@ant-design/icons";
 interface IUsers {
   _id: string;
   email: string;
@@ -7,6 +10,34 @@ interface IUsers {
   role: string;
 }
 const UsersTable = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
+  const [address, setAddress] = useState("");
+  const [role, setRole] = useState("");
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    const data = {
+      name,
+      email,
+      password,
+      age,
+      gender,
+      role,
+      address,
+    };
+    console.log(">>> check data form: ", data);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   const [listUsers, setListUsers] = useState([]);
   useEffect(() => {
     console.log(">>> check useEffect");
@@ -25,35 +56,105 @@ const UsersTable = () => {
       },
     });
     const d = await res.json();
-    console.log("getData1:", d.data.result);
+    console.log("getData:", d.data.result);
     setListUsers(d.data.result);
   };
 
+  const columns: ColumnsType<IUsers> = [
+    {
+      title: "Email",
+      dataIndex: "email",
+      render: (value, record) => {
+        // console.log("value:", value);
+        //record đại diện cho từng hàng ở trên table
+        return <a>{record.email}</a>;
+      },
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+    },
+  ];
   console.log(">>> check render:", listUsers); // mounting
   return (
     <>
-      <h2>HTML Table</h2>
+      <div
+        className="vixuancu"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2>HTML Table</h2>
+        <div>
+          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+            Add newUser
+          </Button>
+        </div>
+      </div>
 
-      <table>
-        <thead>
-          <tr>
-            <td>Email</td>
-            <td>Name</td>
-            <td>Role</td>
-          </tr>
-        </thead>
-        <tbody>
-          {listUsers.map((item: IUsers, index) => {
-            return (
-              <tr key={item._id}>
-                <td>{item.email}</td>
-                <td>{item.name}</td>
-                <td>{item.role}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <Table columns={columns} dataSource={listUsers} rowKey={"_id"} />
+      {/**thuộc tính của datasource tự động maping với dataindex ở columns */}
+
+      <Modal
+        title="Add newUser"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        maskClosable={false}
+      >
+        <div>
+          <label>Name:</label>
+          <Input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </div>
+        <div>
+          <label>Email:</label>
+          <Input
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <Input
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </div>
+        <div>
+          <label>Age:</label>
+          <Input value={age} onChange={(event) => setAge(event.target.value)} />
+        </div>
+        <div>
+          <label>Gender:</label>
+          <Input
+            value={gender}
+            onChange={(event) => setGender(event.target.value)}
+          />
+        </div>
+        <div>
+          <label>Address:</label>
+          <Input
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
+          />
+        </div>
+        <div>
+          <label>Role:</label>
+          <Input
+            value={role}
+            onChange={(event) => setRole(event.target.value)}
+          />
+        </div>
+      </Modal>
     </>
   );
 };

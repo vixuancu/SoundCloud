@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import UsersPage from "./screens/users.page.tsx";
-// import './index.css'
+import "./App.scss";
 
 import { useState } from "react";
 import { HomeOutlined, UserOutlined } from "@ant-design/icons";
