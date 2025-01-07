@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 // import "../../styles/users.css";
-import { Table, Button, notification } from "antd";
+import { Table, Button, notification, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { PlusOutlined } from "@ant-design/icons";
 import CreateUserModal from "./create.user.modal";
@@ -47,7 +47,26 @@ const UsersTable = () => {
     }
     setListUsers(d.data.result);
   };
-
+  const confirm = async (user: IUsers) => {
+    const res = await fetch(`http://localhost:8000/api/v1/users/${user._id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    const d = await res.json();
+    if (d.data) {
+      notification.success({
+        message: "Xóa user thành công.",
+      });
+      await getData();
+    } else {
+      notification.error({
+        message: JSON.stringify(d.message),
+      });
+    }
+  };
   const columns: ColumnsType<IUsers> = [
     {
       title: "Email",
@@ -79,6 +98,17 @@ const UsersTable = () => {
             >
               Edit
             </button>
+            <Popconfirm
+              title="Delete the user"
+              description={`Are you sure to delete this user. name = ${record.name}?`}
+              onConfirm={() => confirm(record)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button style={{ marginLeft: 20 }} danger>
+                Delete
+              </Button>
+            </Popconfirm>
           </div>
         );
       },
