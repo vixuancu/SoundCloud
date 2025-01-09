@@ -20,8 +20,13 @@ const UsersTable = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState<null | IUsers>(null);
-  const access_token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiX2lkIjoiNjc3YjM5NWQ3MzJhYjkxNjViZWRjY2Y3IiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJhZGRyZXNzIjoiVmlldE5hbSIsImlzVmVyaWZ5Ijp0cnVlLCJuYW1lIjoiSSdtIGFkbWluIiwidHlwZSI6IlNZU1RFTSIsInJvbGUiOiJBRE1JTiIsImdlbmRlciI6Ik1BTEUiLCJhZ2UiOjY5LCJpYXQiOjE3MzYxNDUxNTMsImV4cCI6MTgyMjU0NTE1M30.rjrTzFDZBjATbDvrHT-tkzRPyDOHc3FuZyizqb2yGCI";
+  const access_token = localStorage.getItem("access_token") as string;
+  const [meta, setMeta] = useState({
+    current: 1,
+    pageSize: 5,
+    pages: 0,
+    total: 0,
+  });
   useEffect(() => {
     console.log(">>> check useEffect");
     // hàm useEffect chạy sau hàm render
@@ -29,15 +34,18 @@ const UsersTable = () => {
   }, []);
 
   const getData = async () => {
-    const res = await fetch("http://localhost:8000/api/v1/users/all", {
-      // mặc định là method get
+    const res = await fetch(
+      `http://localhost:8000/api/v1/users?current=${meta.current}&pageSize=${meta.pageSize}`,
+      {
+        // mặc định là method get
 
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${access_token}`,
-        // cấu hình
-      },
-    });
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+          // cấu hình
+        },
+      }
+    );
     const d = await res.json();
     // console.log("getData:", d.data.result);
     if (!d.data) {
@@ -46,6 +54,12 @@ const UsersTable = () => {
       });
     }
     setListUsers(d.data.result);
+    setMeta({
+      current: d.data.meta.current,
+      pageSize: d.data.meta.pageSize,
+      pages: d.data.meta.pages,
+      total: d.data.meta.total,
+    });
   };
   const confirm = async (user: IUsers) => {
     const res = await fetch(`http://localhost:8000/api/v1/users/${user._id}`, {
@@ -114,7 +128,32 @@ const UsersTable = () => {
       },
     },
   ];
-  console.log(">>> check render:", listUsers); // mounting
+
+  const handleOnChange = async (page: number, pageSize: number) => {
+    const res = await fetch(
+      `http://localhost:8000/api/v1/users?current=${page}&pageSize=${pageSize}`,
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const d = await res.json();
+    if (!d.data) {
+      notification.error({
+        message: JSON.stringify(d.message),
+      });
+    }
+    setListUsers(d.data.result);
+    setMeta({
+      current: d.data.meta.current,
+      pageSize: d.data.meta.pageSize,
+      pages: d.data.meta.pages,
+      total: d.data.meta.total,
+    });
+  };
+  // console.log(">>> check render:", listUsers); // mounting
 
   return (
     <>
@@ -138,7 +177,21 @@ const UsersTable = () => {
         </div>
       </div>
 
-      <Table columns={columns} dataSource={listUsers} rowKey={"_id"} />
+      <Table
+        columns={columns}
+        dataSource={listUsers}
+        rowKey={"_id"}
+        pagination={{
+          current: meta.current,
+          pageSize: meta.pageSize,
+          total: meta.total,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} items`,
+          onChange: (page: number, pageSize: number) =>
+            handleOnChange(page, pageSize),
+          showSizeChanger: true,
+        }}
+      />
       {/**thuộc tính của datasource tự động maping với dataindex ở columns */}
 
       <CreateUserModal
