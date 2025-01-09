@@ -5,7 +5,7 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import UsersPage from "./screens/users.page.tsx";
 import "./App.scss";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HomeOutlined, UserOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
@@ -44,6 +44,25 @@ const Header = () => {
   );
 };
 const LayoutAdmin = () => {
+  const getData = async () => {
+    const res = await fetch("http://localhost:8000/api/v1/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: "hoidanit@gmail.com",
+        password: "123456",
+      }),
+    });
+    const d = await res.json(); // parse dữ liệu JSON
+    if (d.data) {
+      localStorage.setItem("access_token", d.data.access_token);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
   return (
     <div>
       <Header />
