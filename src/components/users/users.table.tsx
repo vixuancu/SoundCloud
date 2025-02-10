@@ -23,7 +23,7 @@ const UsersTable = () => {
   const access_token = localStorage.getItem("access_token") as string;
   const [meta, setMeta] = useState({
     current: 1,
-    pageSize: 5,
+    pageSize: 2,
     pages: 0,
     total: 0,
   });

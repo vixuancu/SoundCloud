@@ -6,10 +6,11 @@ import UsersPage from "./screens/users.page.tsx";
 import "./App.scss";
 
 import { useEffect, useState } from "react";
-import { HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { AudioOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
 import { Link } from "react-router-dom";
+import TracksPage from "./screens/tracks.page.tsx";
 type MenuItem = Required<MenuProps>["items"][number];
 
 const items: MenuItem[] = [
@@ -22,6 +23,12 @@ const items: MenuItem[] = [
     label: <Link to={"/users"}>Manage Users</Link>,
     key: "users",
     icon: <UserOutlined />,
+    disabled: false,
+  },
+  {
+    label: <Link to={"/tracks"}>Manage Tracks</Link>,
+    key: "tracks",
+    icon: <AudioOutlined />,
     disabled: false,
   },
 ];
@@ -83,13 +90,17 @@ const router = createBrowserRouter([
         path: "users",
         element: <UsersPage />,
       },
+      {
+        path: "tracks",
+        element: <TracksPage />,
+      },
     ],
   },
 
-  {
-    path: "/tracks",
-    element: <div>Manage Tracks</div>,
-  },
+  // {
+  //   path: "/tracks",
+  //   element: <div>Manage Tracks</div>,
+  // },
 ]);
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

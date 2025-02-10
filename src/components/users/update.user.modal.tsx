@@ -24,7 +24,7 @@ const UpdateUserModal = (props: IProps) => {
 
   useEffect(() => {
     if (dataUpdate) {
-      //code
+      //code  fill form
       form.setFieldsValue({
         name: dataUpdate.name,
         email: dataUpdate.email,
